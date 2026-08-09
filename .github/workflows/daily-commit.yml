@@ -1,0 +1,37 @@
+name: Auto Daily Commits
+
+on:
+  schedule:
+    # Berjalan otomatis setiap hari pada jam 00:00 UTC (07:00 WIB)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make random commits
+        run: |
+          git config --global user.name "Jovian"
+          git config --global user.email "jovianekasakta01@gmail.com"
+
+          NUM_COMMITS=$(( ( RANDOM % 5 ) + 1 ))
+          echo "Hari ini membuat $NUM_COMMITS commit acak..."
+
+          for (( i=1; i<=$NUM_COMMITS; i++ ))
+          do
+            echo "Auto activity update: $(date) - commit $i dari $NUM_COMMITS" >> activity_log.txt
+            git add activity_log.txt
+            git commit -m "chore: auto update daily activity log ($i/$NUM_COMMITS)"
+            sleep 2
+          done
+
+      - name: Push changes
+        run: |
+          git push
